@@ -1,0 +1,31 @@
+<%
+   not_found = false
+   not_found = @items.blank? if params[:search]
+%>
+
+<%#= form_tag(:controller=>params[:controller], :action=>'index') %>
+	
+<form action="<%= url_for %>" method="get" class="fright">
+	
+	
+	<% if not_found %><div class="field_with_errors"><% end %>
+
+	<% for k,v in params[:filter] %>
+		<input type="hidden" name="filter[<%=k%>]" value="<%=v%>" />
+	<% end if params[:filter] %>
+
+	<% for k,v in params[:filter_range] %>
+		<input type="hidden" name="filter_range[<%=k%>]" value="<%=v%>" />
+	<% end if params[:filter_range] %>
+	
+	<span class="em80">Search:</span> 
+	<input class="search right" type="text" name="search" value="<%= params[:search] %>" size="30" />
+  <!-- <input type="image" src="/wake/icons/search.png" class="" alt="GO" 
+     style="margin: 0px; padding: 0px; background: none; position: relative; top: 3px; left: 4px; cursor: pointer;"> -->
+
+&nbsp;
+
+	<% if not_found %></div><% end %>
+
+</form>
+

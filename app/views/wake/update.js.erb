@@ -1,0 +1,16 @@
+<% ident = controller._ident %>
+
+<% if @item.valid? %>
+
+	<% dom_id = @item.dom_id %>
+	$('#<%= dom_id %>-inside').remove();
+	$('#<%= dom_id %>').replaceWith("<%=escape_javascript render :partial=>"#{ident}_list_item", :object=>@item %>");
+	
+<% else %>
+
+	<% dom_id = @item.dom_id+'-form' %>
+	$('#<%= dom_id %>').html("<%=escape_javascript render :partial=>"#{ident}_inline_form" %>");
+
+<% end %>
+
+<%= render :partial=>'/wake/flash', :object=>flash %>

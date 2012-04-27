@@ -87,8 +87,9 @@ module Wake
     flash.now[:notice] = "wake.#{_ident}.list"
     render :action => _ident+'_list'
   end
-  
-  def new    
+    
+  def new
+    @item = _model.new
     params[_ident].each{ |k,v| @item.send "#{k}=", v} if params[_ident]
    
     flash.now[:notice] = @flash_notice = "wake.#{_ident}.new"
@@ -100,6 +101,7 @@ module Wake
   
   
   def create
+    @item ||= _model.new
     params[_ident].each{ |k,v| @item.send "#{k}=", v}
     
     if @item.save
@@ -201,7 +203,7 @@ module Wake
   def wake_prepare
     logger.debug "Wake PREPARE"
     @item = _model.find params[:id] if params[:id]
-    @item ||= _model.new #params[_ident]
+#    @item ||= _model.new #params[_ident]
 #    @item ||= _model.new #params[_ident]    
     
     # @order = params[:order] if params[:order]

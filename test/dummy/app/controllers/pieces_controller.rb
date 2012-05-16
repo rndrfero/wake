@@ -1,4 +1,5 @@
 class PiecesController < ApplicationController
   
-  include Wake
+  wake 
+  
 end

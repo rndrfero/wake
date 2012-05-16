@@ -37,6 +37,8 @@ table.wakeThemeList, table.wakeThemeForm {
 .wakeThemeList th a { font-weight: normal; color: white; }
 .wakeThemeList th a.selected { font-weight: bold; color: #B6FF6D; }
 
+.wakeThemeList tr.active td { background: #ABFFA8; }
+
 .wakeThemeList .hi-visible { font-weight: bold; font-size: 1.1em; }
 .wakeThemeList .lo-visible { font-size: 0.8em; }
 
@@ -49,6 +51,11 @@ table.wakeThemeList tr.hilite:hover td.hi-visible { color: #77c02e; }
 
 table.wakeThemeList tr td.inside { background: white; padding: 0em; margin: 0em;  }
 
+/* gallery item */
+
+.wakeThemeList .galleryItem { background: #F6F6F6; margin: 10px; border: 1px solid #DDD; float: left; padding: 5px;
+	box-shadow: 3px 3px 7px #777; -moz-box-shadow: 3px 3px 7px #777; -webkit-box-shadow: 3px 3px 7px #777; cursor: pointer;  }
+.wakeThemeList .galleryItem:hover { background: white; }
 
 
 .wakeThemeForm .error { color: #DD0000; background: yellow; font-weight: bold; }
@@ -80,3 +87,8 @@ table.wakeThemeList tr td.inside { background: white; padding: 0em; margin: 0em;
 .wakeThemeSelector a, .wakeThemeSelector a:visited { color: #666; font-weight: normal; padding-left: 2px; padding-right: 2px; }
 .wakeThemeSelector a.active { font-weight: bold; color: #00528D; font-size: 1.1em;  }	
 
+	
+.wakeThemeCleanForm { }
+.wakeThemeCleanForm input { border: none; border-left: 1px solid #DDD; border-bottom: 1px solid #DDD; margin: 2px; font-weight: bold; }
+.wakeThemeCleanForm input.title { font-size: 1.1em; }
+	

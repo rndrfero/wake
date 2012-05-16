@@ -6,7 +6,8 @@
   <%= javascript_include_tag "application" %>
   <%= csrf_meta_tags %>
 
-	<%= stylesheet_link_tag "wake/default.css" %>
+	<%= stylesheet_link_tag "wake/application.css" %>
+	<%= stylesheet_link_tag "wake/themes/default.css" %>
   <%= javascript_include_tag "wake/application" %>
 </head>
 <body>
@@ -16,6 +17,12 @@
 		<%= link_to 'Standard (ThingsController)', things_path %>
 		&nbsp;&nbsp;
 		<%= link_to 'AJAX (PiecesController)', pieces_path %>
+		&nbsp;&nbsp;
+		<%= link_to 'Gallery style + AJAX (ModalThingsController)', modal_things_path %>
+		&nbsp;&nbsp;
+		<%= link_to 'Fixed form style + AJAX (ModalPiecesController)', modal_pieces_path %>
+		&nbsp;&nbsp;
+		<%#= link_to 'Another gallery + AJAX (ModalPiecesController)', modal_things_path %>
 	</div>
 
 	<div class="island">

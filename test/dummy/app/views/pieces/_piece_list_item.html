@@ -44,7 +44,7 @@
 		<td colspan="8" class="inside" style="border: none;">
 			<% if @item and item.id == @item.id %>
 				<div id="<%=dom_id item %>-form" class="form-container" style="">
-					<%= render :partial=>'geo_location_inline_form' %>
+					<%= render :partial=>"#{controller._ident}_inline_form" %>
 				</div>
 			<% else %>	
 				<div id="<%=dom_id item %>-form" class="form-container" style="display: none;"></div>

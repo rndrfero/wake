@@ -39,6 +39,9 @@ Dummy::Application.configure do
   config.reload_classes_only_on_change = false
 
   # GEM DEV: reloading gems
+  config.autoload_paths += %W(#{config.root}/../../lib/)  
+  config.autoload_paths += %W(#{config.root}/../../app/**/)  
+  
   config.autoload_paths += %W(#{config.root}/../../rails_gems/lib/)  
   config.autoload_paths += %W(#{config.root}/../../rails_gems/app/**/)  
 end

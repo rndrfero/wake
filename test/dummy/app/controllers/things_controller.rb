@@ -1,6 +1,7 @@
 
 class ThingsController < ApplicationController
   
-  include Wake
+#  include Wake
+  wake #:within_module=>'MyEngine'
   
 end

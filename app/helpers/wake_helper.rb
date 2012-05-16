@@ -1,7 +1,7 @@
 module WakeHelper
     
   def ico(x, color=nil)
-    raw "<span class='iconic #{x} #{color}'>#{x}</span>"
+    raw "<span class='iconic #{x}' style='color: #{color};'></span>"
   end
 
   def wake_click_order_by(column, _label=nil)

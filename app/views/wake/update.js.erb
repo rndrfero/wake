@@ -1,15 +1,13 @@
 <% ident = controller._ident %>
-
+	
 <% if @item.valid? %>
 
-	<% dom_id = dom_id @item %>
-	$('#<%= dom_id %>-inside').remove();
-	$('#<%= dom_id %>').replaceWith("<%=escape_javascript render :partial=>"#{ident}_list_item", :object=>@item %>");
+  $('#<%=dom_id @item %>-inside').remove();
+	$('#<%=dom_id @item %>').replaceWith("<%=escape_javascript render :partial=>"#{ident}_list_item", :object=>@item %>");
 	
 <% else %>
 
-	<% dom_id = dom_id(@item)+'-form' %>
-	$('#<%= dom_id %>').html("<%=escape_javascript render :partial=>"#{ident}_inline_form" %>");
+	$('#<%=dom_id @item %>-form').html("<%=escape_javascript render :partial=>"#{ident}_inline_form" %>");
 
 <% end %>
 

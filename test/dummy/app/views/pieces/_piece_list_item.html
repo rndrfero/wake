@@ -42,16 +42,22 @@
 
 	<tr id="<%=dom_id item %>-inside">
 		<td colspan="8" class="inside" style="border: none;">
-			<% if @item and item.id == @item.id %>
-				<div id="<%=dom_id item %>-form" class="form-container" style="">
-					<%= render :partial=>"#{controller._ident}_inline_form" %>
-				</div>
-			<% else %>	
-				<div id="<%=dom_id item %>-form" class="form-container" style="display: none;"></div>
-			<% end %>
+			<div id="<%=dom_id item %>-form" class="form-container" style="">
+				<%= render :partial=>"#{controller._ident}_inline_form" if @item and item.id == @item.id %>
+			</div>
 		</td>
 	</tr>
+	
+	<!-- 
+	<% if @item and item.id == @item.id %>
+		<div id="<%=dom_id item %>-form" class="form-container" style="">
+			<%#= render :partial=>"#{controller._ident}_inline_form" %>
+		</div>
+	<% else %>	
+		<div id="<%=dom_id item %>-form" class="form-container" style="display: none;"></div>
+	<% end %> -->
 
 
 <% end %>
+
 

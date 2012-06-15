@@ -61,7 +61,7 @@ module Wake
           #{options[:within_module] ? options[:within_module].camelize : 'self'}
         end
         def _model
-          #{model_str.camelize}
+          #{options[:within_module] ? "#{options[:within_module].camelize}::" : ''}#{model_str.camelize}
         end
         def _model_sym
           :#{model_str.underscore}
@@ -86,7 +86,9 @@ module Wake
     
     def new
       @item ||= _model.new
-      params[_model_sym].each{ |k,v| @item.send "#{k}=", v} if params[_model_sym]
+#      params[_model_sym].each{ |k,v| @item.send "#{k}=", v} if params[_model_sym]
+      @item.attributes = params[_model_sym] if params[_model_sym]
+      @item.attributes = wake_constraints if wake_constraints
    
       flash.now[:notice] = @flash_notice = "wake.#{_ident}.new"
       respond_to do |format|      
@@ -98,7 +100,9 @@ module Wake
   
     def create
       @item ||= _model.new
-      params[_model_sym].each{ |k,v| @item.send "#{k}=", v}
+#      params[_model_sym].each{ |k,v| @item.send "#{k}=", v}
+      @item.attributes = params[_model_sym]
+      @item.attributes = wake_constraints if wake_constraints
           
       if @item.save
         flash[:hilite] = "wake.#{_ident}.create_ok"
@@ -145,7 +149,8 @@ module Wake
   
     def update
 #      raise 'hovno'
-      @item.attributes= params[_model_sym]
+      @item.attributes = params[_model_sym]
+      @item.attributes = wake_constraints if wake_constraints
 #      params[_ident].each{ |k,v| @item.send "#{k}=", v}
     
       if @item.save
@@ -199,7 +204,18 @@ module Wake
     private
     def wake_prepare
       logger.debug "Wake PREPARE"
-      @item = _model.find params[:id] if params[:id]
+      @item ||= _model.find params[:id] if params[:id]
+      
+      if @item and wake_constraints 
+        # check if everything is all right
+        for k,v in wake_constraints
+          next if @item.send(k) == v
+          flash[:error] = 'Sorry, this is illegal.'
+          redirect_to :action=>'index'
+          return false
+        end         
+      end
+       
   #    @item ||= _model.new #params[_ident]
   #    @item ||= _model.new #params[_ident]    
     
@@ -222,7 +238,8 @@ module Wake
 #      raise "#{instance_eval "Elastic::Site"}"
 #      raise "pizdo: #{Elastic.const_get "Site"}"
 #      raise "pizdo: #{Elastic.const_get "Site"}"
-      @items = _model
+      @items ||= _model
+      @items = @items.where wake_constraints if wake_constraints
       @items = @items.includes _model.wake_includes if _model.respond_to? :wake_includes
     
       if params[:filter]
@@ -293,6 +310,26 @@ module Wake
     
       # expecting model to have:
       # def wake_includes, wake_search_fields
+    end
+        
+    def wake_referer_params
+      session[:wake_referer_params] = wake_strip_multipart params
+    end
+    
+    def wake_constraints
+      nil
+    end
+    
+    
+    private
+    def wake_strip_multipart(hash)
+      return nil if hash.blank?
+      return true if not hash.is_a? Hash
+      ret = {}
+      hash.each do |k,v| 
+        ret[k] = wake_strip_multipart v
+      end
+      ret
     end
     
 #    <% dom_id = dom_id(@item)+'-form' %>

@@ -3,9 +3,19 @@ module WakeHelper
   def ico(x, color=nil)
     raw "<span class='iconic #{x}' style='color: #{color};'></span>"
   end
+  
+  def wake_referer_param?(*args)
+    x = session[:wake_referer_params]
+    for arg in args
+      return false if x.blank?
+      return true if x[arg.to_s] == true
+      x = x[arg.to_s]
+    end
+    not x.blank?
+  end
 
   def wake_click_order_by(column, _label=nil)
-    _label ||= column.humanize
+    _label ||= column.gsub(/^.*\./,'').humanize
     if params[:order] == column.to_s
 #      raise (params[:desc]=='true' ? nil : 'true').inspect
       link_to _label, url_for(:action=>'index', :order=>column, :desc=>(params[:desc]=='true' ? 'false' : 'true'),
@@ -43,7 +53,7 @@ module WakeHelper
   def wake_button_destroy(item)
     return '' if not item.wake_destroyable? if item.respond_to? :wake_destroyable?
     link_to ico('x'), {:action=>'destroy',:id=>item}, 
-      :method=>:delete, :confirm=>'wake.general.confirm_destroy'
+      :method=>:delete, :confirm=>'wake.general.confirm_destroy'.tt
   end
 
   def wake_star_button(item)

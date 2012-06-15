@@ -7,11 +7,11 @@ require "wake/version"
 Gem::Specification.new do |s|
   s.name        = "wake"
   s.version     = Wake::VERSION
-  s.authors     = ["TODO: Your name"]
-  s.email       = ["TODO: Your email"]
-  s.homepage    = "TODO"
-  s.summary     = "TODO: Summary of Wake."
-  s.description = "TODO: Description of Wake."
+  s.authors     = ["rndrfero"]
+  s.email       = ["frantisek.psotka@stylez.sk"]
+  s.homepage    = "https://github.com/rndrfero/wake"
+  s.summary     = "Convention-over-configuration extension for Rails. Rapid prototyping THE FINAL application. Opposite to scaffolding."
+  s.description = "Convention-over-configuration extension for Rails. Rapid prototyping THE FINAL application. Opposite to scaffolding."
 
   s.files = Dir["{app,config,db,lib}/**/*"] + ["MIT-LICENSE", "Rakefile", "README.rdoc"]
   s.test_files = Dir["test/**/*"]

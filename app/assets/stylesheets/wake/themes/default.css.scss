@@ -92,10 +92,12 @@ table.wakeThemeList tr td.inside { background: white; padding: 0em; margin: 0em;
 .wakeThemeCleanForm a.button .iconic { margin-right: 0.5em; }
 
 .wakeThemeCleanForm a.button { margin: 0px 2px; }
+.wakeThemeCleanForm a.button.hi-visible { color: #74be29; }
+.wakeThemeCleanForm a.button.lo-visible { font-size: 0.8em; }
 .wakeThemeCleanForm input.button { background: none; border: none; color: #00528D; 
 	
 	font-family: Verdana; font-size: 12px; margin: 0px 2px; padding: 0px; }
 .wakeThemeCleanForm a.active { color: white; background: #74be29; padding: 1px 2px; }
-.wakeThemeCleanForm input { border: none; border-left: 1px solid #DDD; border-bottom: 1px solid #DDD; margin: 2px; font-weight: bold; }
-.wakeThemeCleanForm input.title { font-size: 1.1em; }
+.wakeThemeCleanForm input, .wakeThemeCleanForm * input { border: none; border-left: 1px solid #DDD; border-bottom: 1px solid #DDD; margin: 2px; font-weight: bold; }
+.wakeThemeCleanForm input.title, .wakeThemeCleanForm * input.title { font-size: 1.1em; }
 	

@@ -10,4 +10,5 @@
  *
  *= require_self
  *= require ./general.css
+ *= require ./themes/default.css
 */

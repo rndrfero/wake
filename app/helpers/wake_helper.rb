@@ -4,6 +4,27 @@ module WakeHelper
     raw "<span class='iconic #{x}' style='color: #{color};'></span>"
   end
   
+  def menu_link_to(label, path)
+    req_path = request.path.gsub(/\/\//, "/")
+    options = {}
+    options[:class]= "active" if req_path.starts_with? path
+    raw link_to label, path, options
+  end
+
+  def menu_match(*args)
+    return false if @menu_matched
+    args = args.first if args.first.is_a? Array
+    req_path = request.path.gsub(/\/\//, "/")
+    for arg in args
+        if req_path.starts_with? arg
+          @menu_matched = true
+          return true
+        end
+    end
+    return false
+  end
+  
+  
   def wake_referer_param?(*args)
     x = session[:wake_referer_params]
     for arg in args
@@ -63,8 +84,14 @@ module WakeHelper
   def wake_field_error(attr_sym)
     raw @item.errors.empty? ? '' : "<span class=\"error\">#{@item.errors[attr_sym].first}</span>"
   end
+  
+  # def wake_select(collection, key=nil)
+  #   key ||= collection.first.class.to_s.underscore + '_id'
+  #   
+  #   select
+  # end
 
-  def wake_select_enum(key, choices)
+  def wake_filter_enum(key, choices)
 	  choices = [['', nil]] + choices
 		url = url_for :action=>'index'		
 
@@ -87,7 +114,7 @@ module WakeHelper
   end
 
 
-	def wake_select_exclusive(collection, key=nil)
+	def wake_filter_exclusive(collection, key=nil)
 		key ||= collection.first.class.to_s.underscore + '_id'
 
 	  choices = [['', nil]] + collection.map{ |x| [x.name,x.id] }
@@ -114,6 +141,7 @@ module WakeHelper
 
   alias :wo :wake_onclick
   alias :wor :wake_onclick_remote
+  alias :wcob :wake_click_order_by
   alias :whl :wake_hl  
   alias :wfe :wake_field_error
   alias :wico :wake_icon

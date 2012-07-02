@@ -1,7 +1,8 @@
 module WakeHelper
     
-  def ico(x, color=nil)
-    raw "<span class='iconic #{x}' style='color: #{color};'></span>"
+  def ico(x, color=nil, title=nil)
+    title ||= 'wake.ico.x'.tt
+    raw "<span class='iconic #{x}' style='color: #{color};' title='#{title}'></span>"
   end
 
 

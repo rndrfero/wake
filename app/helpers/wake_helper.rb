@@ -51,12 +51,12 @@ module WakeHelper
 
   def wake_click_order_by(column, _label=nil)
     _label ||= column.gsub(/^.*\./,'').humanize
-    if params[:order] == column.to_s
-#      raise (params[:desc]=='true' ? nil : 'true').inspect
-      link_to _label, url_for(:action=>'index', :order=>column, :desc=>(params[:desc]=='true' ? 'false' : 'true'),
-        :filter=>params[:filter]), :class=>'selected'
+    o = @wake_params[:order]
+    if o and o.include? column.to_s
+      no = o =~ /ASC/ ? o.gsub(/ASC/,'DESC') : o.gsub(/DESC/, 'ASC')
+      link_to _label, url_for(:action=>'index', :wake=>@wake_params.merge(:order=>no)), :class=>'selected'
     else
-      link_to _label, url_for(:action=>'index', :order=>column, :filter=>params[:filter])
+      link_to _label, url_for(:action=>'index', :wake=>@wake_params.merge(:order=>"#{column.to_s} ASC"))
     end
   end
 
@@ -70,7 +70,7 @@ module WakeHelper
   end
 
   def wake_onclick(item)
-    raw "onclick=\"document.location='#{url_for :action=>'edit', :id=>item}'\""
+    raw "onclick=\"document.location='#{url_for :action=>'edit', :id=>item, :wake=>@wake_params}'\""
   end
 
   def wake_onclick_remote(item)
@@ -91,9 +91,9 @@ module WakeHelper
       :method=>:delete, :data=>{:confirm=>'wake.general.confirm_destroy'.tt}
   end
 
-  def wake_star_button(item)
-    link_to raw(wake_icon(item.is_star? ? :star_on : :star_off)), {:action=>'toggle_star', :id=>item}, :method=>:post
-  end
+  # def wake_star_button(item)
+  #   link_to raw(wake_icon(item.is_star? ? :star_on : :star_off)), {:action=>'toggle_star', :id=>item}, :method=>:post
+  # end
 
   def wake_field_error(attr_sym)
     raw @item.errors.empty? ? '' : "<span class=\"error\">#{@item.errors[attr_sym].first}</span>"
@@ -111,19 +111,19 @@ module WakeHelper
 
 		filter_params = "?"
 
-		for k,v in params[:filter]
+		for k,v in @wake_params[:filter]
 		  next if k == key
-  		filter_params << "filter[#{k}]=#{v}&"
-		end if params[:filter]
+  		filter_params << "wake[filter][#{k}]=#{v}&"
+		end if @wake_params[:filter]
 
-		for k,v in params[:filter_range]
-  		filter_params << "filter_range[#{k}]=#{v}&"
-	  end if params[:filter_range]
+		for k,v in @wake_params[:filter_range]
+  		filter_params << "wake[filter_range][#{k}]=#{v}&"
+	  end if @wake_params[:filter_range]
 
-		filter_params << "search=#{params[:search]}&" if params[:search]
+		filter_params << "wake[search]=#{@wake_params[:search]}&" if @wake_params[:search]
 
-	  onchange = "document.location='#{url}#{URI.escape filter_params}filter[#{key}]='+this.options[this.selectedIndex].value"
-		selected = params[:filter] ? params[:filter][key] : nil
+	  onchange = "document.location='#{url}#{URI.escape filter_params}wake[filter][#{key}]='+this.options[this.selectedIndex].value"
+		selected = @wake_params[:filter] ? @wake_params[:filter][key] : nil
 	  select 'not', 'important', choices, {:selected=>selected}, :onchange=>onchange
   end
 
@@ -136,21 +136,25 @@ module WakeHelper
 
 		filter_params = "?"
 
-		for k,v in params[:filter]
+		for k,v in @wake_params[:filter]
 		  next if k == key
-  		filter_params << "filter[#{k}]=#{v}&"
-		end if params[:filter]
+  		filter_params << "wake[filter][#{k}]=#{v}&"
+		end if @wake_params[:filter]
 
-		for k,v in params[:filter_range]
-  		filter_params << "filter_range[#{k}]=#{v}&"
-	  end if params[:filter_range]
+		for k,v in @wake_params[:filter_range]
+  		filter_params << "wake[filter_range][#{k}]=#{v}&"
+	  end if @wake_params[:filter_range]
 
-		filter_params << "search=#{params[:search]}&" if params[:search]
+		filter_params << "wake[search]=#{@wake_params[:search]}&" if @wake_params[:search]
 
-	  onchange = "document.location='#{url}#{URI.escape filter_params}filter[#{key}]='+this.options[this.selectedIndex].value"
-		selected = params[:filter] ? params[:filter][key] : nil
+	  onchange = "document.location='#{url}#{URI.escape filter_params}wake[filter][#{key}]='+this.options[this.selectedIndex].value"
+		selected = @wake_params[:filter] ? @wake_params[:filter][key] : nil
 	  select 'not', 'important', choices, {:selected=>selected}, :onchange=>onchange
 	end
+	
+	def wake_back
+	  link_to 'wake.simply_back'.tt, {:action=>'index', :wake=>@wake_params}, :class=>'button'
+  end
 
 
   alias :wo :wake_onclick

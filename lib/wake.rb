@@ -16,10 +16,17 @@
 # DELETE  /photos/:id   destroy   delete a specific photo
 
 # :wake_filter => { 
-#   :assoc_item_id => id 
-#   :order => order
-#   :search => pattern
+#   :assoc_item_id => id ???
+#   :order => 'table.column ASC, table2.column ASC'
+#   :search => 'pattern'
+#   :filter => {:column=>'value'}
+#   :filter_range => ??
+#   :filter_ids => ??
 # }
+#
+# + wake_referer_params
+# + wake_constraints
+#
 
 require "wake/engine"
 require 'kaminari'
@@ -107,7 +114,7 @@ module Wake
       if @item.save
         flash[:hilite] = "wake.#{_ident}.create_ok"
         respond_to do |format|
-          format.html { redirect_to :action=>'edit', :id=>@item.id }
+          format.html { redirect_to :action=>'edit', :id=>@item.id, :wake=>params[:wake] }
   #        format.js { render :template=>'wake/create' }
           format.js { render :template=>'/wake/redirect' } 
           # { redirect_to :action=>'index' }
@@ -157,7 +164,7 @@ module Wake
         respond_to do |format|
           format.html do
             flash[:hilite] = "wake.#{_ident}.update_ok"
-            redirect_to :action=>'edit'
+            redirect_to :action=>'edit', :wake=>params[:wake]
           end
           format.js do
             flash.now[:hilite] = "wake.#{_ident}.update_ok"
@@ -187,7 +194,7 @@ module Wake
   #      raise ret.inspect
         if ret.is_a? _model or ret==[]
           flash[:hilite] = "wake.#{_ident}.destroy_ok"
-          redirect_to :action=>'index', :id=>nil
+          redirect_to :action=>'index', :id=>nil, :wake=>params[:wake]
         else
           flash.now[:error] = "wake.#{_ident}.destroy_error"
           respond_to do |format|
@@ -204,6 +211,8 @@ module Wake
     private
     def wake_prepare
       logger.debug "Wake PREPARE"
+      params[:wake] ||= {}
+      @wake_params = params[:wake]      
       @item ||= _model.find params[:id] if params[:id]
       
       if @item and wake_constraints 
@@ -241,32 +250,36 @@ module Wake
       @items ||= _model
       @items = @items.where wake_constraints if wake_constraints
       @items = @items.includes _model.wake_includes if _model.respond_to? :wake_includes
+      
+      wake_params = @wake_params 
     
-      if params[:filter]
-        for k,v in params[:filter]
+      if wake_params[:filter]
+        for k,v in wake_params[:filter]
           next if v.blank?
-          k.gsub! /[^a-z\._]/, '' #securtity for table.row
+#          k.gsub! /[^a-z\._]/, '' #securtity for table.row
+          ksat = k.gsub /[^a-z0-9\._]/, ''
+          
           if ['IS TRUE','IS NOT TRUE', 'IS NULL', 'IS NOT NULL'].include? v
-            @items = @items.where "#{k} #{v}"
+            @items = @items.where "#{ksat} #{v}"
           else
-            @items = @items.where k.to_sym => v #unless v.blank?
+            @items = @items.where ksat.to_sym => v #unless v.blank?
           end
         end
       end
     
-      if params[:filter_range] and !params[:filter_range][:key].blank?
+      if wake_params[:filter_range] and !wake_params[:filter_range][:key].blank?
         begin
-          from = params[:filter_range][:from].blank? ? nil : Date.parse(params[:filter_range][:from])
+          from = wake_params[:filter_range][:from].blank? ? nil : Date.parse(wake_params[:filter_range][:from])
         rescue ArgumentError
-          from, params[:filter_range][:from_error] = nil, true
+          from, wake_params[:filter_range][:from_error] = nil, true
         end
         begin
-          untl = params[:filter_range][:until].blank? ? nil : Date.parse(params[:filter_range][:until])
+          untl = wake_params[:filter_range][:until].blank? ? nil : Date.parse(wake_params[:filter_range][:until])
         rescue ArgumentError
-          untl, params[:filter_range][:until_error] = nil, true
+          untl, wake_params[:filter_range][:until_error] = nil, true
         end
         
-        key = params[:filter_range][:key].gsub /[^a-z\+\-\._ ]/, ''
+        key = wake_params[:filter_range][:key].gsub /[^a-z\+\-\._ ]/, ''
       
         if key.include? '+'
           tmp = key.split('+').map{ |x| x.strip }
@@ -289,21 +302,21 @@ module Wake
         end
       end
     
-      if params[:order]
-        @items = @items.order(params[:order]+((params[:desc]=='true' or params[:desc]==true)  ? ' DESC' : ' ASC')) 
+      if wake_params[:order]
+        @items = @items.order wake_params[:order] #+((wake_params[:desc]=='true' or wake_params[:desc]==true)  ? ' DESC' : ' ASC')) 
       end
     
-      @items = @items.page(params[:page]).per(Defaults::PER_PAGE)    
+      @items = @items.page(wake_params[:page]).per(Defaults::PER_PAGE)    
 
-      if params[:search]
-        where_array = [(_model.wake_search_fields.join(" LIKE ? OR ")+' LIKE ?')] + ["%#{params[:search]}%"]*_model.wake_search_fields.size
+      if wake_params[:search]
+        where_array = [(_model.wake_search_fields.join(" LIKE ? OR ")+' LIKE ?')] + ["%#{wake_params[:search]}%"]*_model.wake_search_fields.size
         @items = @items.where where_array
       
         @item ||= @items.first if @items.size == 1
       end
     
-      if params[:filter_ids]
-        the_ids = params[:filter_ids].map { |x| x=x.to_i }
+      if wake_params[:filter_ids]
+        the_ids = wake_params[:filter_ids].map { |x| x=x.to_i }
         where_array = [(" id = ? OR ")*(the_ids.size-1)+' id = ?'] + the_ids
         @items = @items.where where_array
       end

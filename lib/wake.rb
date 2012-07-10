@@ -212,6 +212,7 @@ module Wake
     def wake_prepare
       logger.debug "Wake PREPARE"
       params[:wake] ||= {}
+      params[:wake][:filter] ||= {}
       @wake_params = params[:wake]      
       @item ||= _model.find params[:id] if params[:id]
       

@@ -64,10 +64,10 @@ module WakeHelper
     'x'
   end
 
-  def wake_icon(ident, alt=nil)
-    ident = ident.to_s
-    raw '<img src="/wake/icons/'+ident+'.png" alt="'+(alt||ident)+'" title="'+(alt||ident)+'">'
-  end
+  # def wake_icon(ident, alt=nil)
+  #   ident = ident.to_s
+  #   raw '<img src="/wake/icons/'+ident+'.png" alt="'+(alt||ident)+'" title="'+(alt||ident)+'">'
+  # end
 
   def wake_onclick(item)
     raw "onclick=\"document.location='#{url_for :action=>'edit', :id=>item, :wake=>@wake_params}'\""
@@ -152,8 +152,12 @@ module WakeHelper
 	  select 'not', 'important', choices, {:selected=>selected}, :onchange=>onchange
 	end
 	
-	def wake_back
+	def wake_back_button
 	  link_to 'wake.simply_back'.tt, {:action=>'index', :wake=>@wake_params}, :class=>'button'
+  end
+  
+  def wake_form_url
+  	@item.new_record? ? {:action=>"create", :wake=>params[:wake]} : {:action=>"update",:id=>@item.id, :wake=>params[:wake]}
   end
 
 
@@ -162,6 +166,6 @@ module WakeHelper
   alias :wcob :wake_click_order_by
   alias :whl :wake_hl  
   alias :wfe :wake_field_error
-  alias :wico :wake_icon
+#  alias :wico :wake_icon
   
 end

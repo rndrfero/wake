@@ -6,24 +6,21 @@
 
 <%= form_tag({:action=>'index'}, :method=>:get, :class=>'inline') do %>
 
-  <%= select 'filter_range', 'key', choices, {:selected=>(params[:filter_range]||{})[:key] } %> : 
+	<% if choices.size == 1 %>
+	  <%= hidden_field_tag 'wake[filter_range][key]', choices.first.last %>
+	  <small><%= choices.first.first%>:</small>
+	<% else %>
+  		<%= select 'wake[filter_range]', 'key', choices, {:selected=>(@wake_params[:filter_range]||{})[:key] } %> : 
+	<% end %>
 
-	<%= text_field_tag 'filter_range[from]', (params[:filter_range]||{})[:from], 
-	  :size=>9, :class=>((params[:filter_range]||{})[:from_error] ? 'field_with_errors' : '') %>
+	<%= text_field_tag 'wake[filter_range][from]', (@wake_params[:filter_range]||{})[:from], 
+	  :size=>9, :class=>((@wake_params[:filter_range]||{})[:from_error] ? 'field_with_errors' : '') %>
 	
 	&rarr;
 	
-	<%= text_field_tag 'filter_range[until]', (params[:filter_range]||{})[:until], 
-	  :size=>9, :class=>((params[:filter_range]||{})[:until_error] ? 'field_with_errors' : '') %>
+	<%= text_field_tag 'wake[filter_range][until]', (@wake_params[:filter_range]||{})[:until], 
+	  :size=>9, :class=>((@wake_params[:filter_range]||{})[:until_error] ? 'field_with_errors' : '') %>
 	
 	<%= submit_tag 'Filter!' %>
-	
-	
-	<% for k,v in (params[:filter]||{}) %>
-	  <input type="hidden" name="filter[<%=k%>]" value="<%=v%>">
-	<% end %>
-	<% if params[:search] %>
-		<input type="hidden" name="search" value="<%= params[:search] %>">
-	<% end %>
-	
+		
 <% end %>

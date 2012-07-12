@@ -79,7 +79,7 @@ module WakeHelper
   end
 
   def wake_hl(string)
-    @_search ||= params[:search]
+    @_search ||= @wake_params[:search]
     return string if @_search.blank? or string.blank?
     @_regexp ||= Regexp.new("(#{sanitize(@_search)})", Regexp::EXTENDED|Regexp::IGNORECASE)
     raw string.to_s.gsub @_regexp, "<span class=\"wake_hl\">\\1</span>"
@@ -153,19 +153,43 @@ module WakeHelper
 	end
 	
 	def wake_back_button
-	  link_to 'wake.simply_back'.tt, {:action=>'index', :wake=>@wake_params}, :class=>'button'
+	  link_to 'wake.button.back'.tt, {:action=>'index', :wake=>@wake_params}, :class=>'button'
   end
+  
+  def wake_new_button
+    link_to 'wake.button.new'.tt, {:action=>'new', :wake=>@wake_params}, :class=>'button'
+  end
+  
+  def wake_form_select(f,column,array)
+    if f.object.new_record? and @wake_params[:filter][column]
+      f.select column, [[nil,nil]]+array.map{ |x| [x.name, x.id] }, :selected=>@wake_params[:filter][column]
+    else
+      f.select column, [[nil,nil]]+array.map{ |x| [x.name, x.id] }
+    end
+  end
+
   
   def wake_form_url
   	@item.new_record? ? {:action=>"create", :wake=>params[:wake]} : {:action=>"update",:id=>@item.id, :wake=>params[:wake]}
   end
 
-
+  def wake_with_filter(path, fltr)
+    if path.is_a? Hash
+      path.merge!(:wake=>{:filter=>fltr})
+    elsif path.is_a? Symbol
+      send path, :wake=>{:filter=>fltr}
+    else
+      raise 'unexpected'
+    end
+  end
+  
+  
   alias :wo :wake_onclick
   alias :wor :wake_onclick_remote
   alias :wcob :wake_click_order_by
   alias :whl :wake_hl  
   alias :wfe :wake_field_error
+  alias :wwf :wake_with_filter
 #  alias :wico :wake_icon
   
 end

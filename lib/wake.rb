@@ -31,6 +31,11 @@
 require "wake/engine"
 require 'kaminari'
 
+Kaminari.configure do |config|
+  config.param_name = 'wake[page]'
+end
+
+
 module Wake
     
   #autoload :WakeHelper, '../app/helpers/wake_helper'
@@ -252,10 +257,9 @@ module Wake
       @items = @items.where wake_constraints if wake_constraints
       @items = @items.includes _model.wake_includes if _model.respond_to? :wake_includes
       
-      wake_params = @wake_params 
     
-      if wake_params[:filter]
-        for k,v in wake_params[:filter]
+      if @wake_params[:filter]
+        for k,v in @wake_params[:filter]
           next if v.blank?
 #          k.gsub! /[^a-z\._]/, '' #securtity for table.row
           ksat = k.gsub /[^a-z0-9\._]/, ''
@@ -267,20 +271,23 @@ module Wake
           end
         end
       end
+
     
-      if wake_params[:filter_range] and !wake_params[:filter_range][:key].blank?
+      if @wake_params[:filter_range] and !@wake_params[:filter_range][:key].blank?
         begin
-          from = wake_params[:filter_range][:from].blank? ? nil : Date.parse(wake_params[:filter_range][:from])
+          @wake_params[:filter_range][:from].strip!
+          from = @wake_params[:filter_range][:from].blank? ? nil : DateTime.parse(@wake_params[:filter_range][:from])
         rescue ArgumentError
-          from, wake_params[:filter_range][:from_error] = nil, true
+          from, @wake_params[:filter_range][:from_error] = nil, true
         end
         begin
-          untl = wake_params[:filter_range][:until].blank? ? nil : Date.parse(wake_params[:filter_range][:until])
+          @wake_params[:filter_range][:until].strip!
+          untl = @wake_params[:filter_range][:until].blank? ? nil : DateTime.parse(@wake_params[:filter_range][:until])
         rescue ArgumentError
-          untl, wake_params[:filter_range][:until_error] = nil, true
+          untl, @wake_params[:filter_range][:until_error] = nil, true
         end
         
-        key = wake_params[:filter_range][:key].gsub /[^a-z\+\-\._ ]/, ''
+        key = @wake_params[:filter_range][:key].gsub /[^a-z\+\-\._ ]/, ''
       
         if key.include? '+'
           tmp = key.split('+').map{ |x| x.strip }
@@ -295,7 +302,8 @@ module Wake
   #      raise key.inspect
       
         if from and untl
-          @items = @items.where("? <= #{key} AND #{key} <= ?", from, (untl+1))
+          @items = @items.where("? <= #{key} AND #{key} <= ?", from, (untl))
+#          raise "#{from} - #{untl}"
         elsif from
           @items = @items.where("? <= #{key}", from)
         elsif untl
@@ -303,21 +311,21 @@ module Wake
         end
       end
     
-      if wake_params[:order]
-        @items = @items.order wake_params[:order] #+((wake_params[:desc]=='true' or wake_params[:desc]==true)  ? ' DESC' : ' ASC')) 
+      if @wake_params[:order]
+        @items = @items.order @wake_params[:order] #+((wake_params[:desc]=='true' or wake_params[:desc]==true)  ? ' DESC' : ' ASC')) 
       end
     
-      @items = @items.page(wake_params[:page]).per(Defaults::PER_PAGE)    
+      @items = @items.page(@wake_params[:page]).per(Defaults::PER_PAGE)    
 
-      if wake_params[:search]
-        where_array = [(_model.wake_search_fields.join(" LIKE ? OR ")+' LIKE ?')] + ["%#{wake_params[:search]}%"]*_model.wake_search_fields.size
+      if @wake_params[:search]
+        where_array = [(_model.wake_search_fields.join(" LIKE ? OR ")+' LIKE ?')] + ["%#{@wake_params[:search]}%"]*_model.wake_search_fields.size
         @items = @items.where where_array
       
         @item ||= @items.first if @items.size == 1
       end
     
-      if wake_params[:filter_ids]
-        the_ids = wake_params[:filter_ids].map { |x| x=x.to_i }
+      if @wake_params[:filter_ids]
+        the_ids = @wake_params[:filter_ids].map { |x| x=x.to_i }
         where_array = [(" id = ? OR ")*(the_ids.size-1)+' id = ?'] + the_ids
         @items = @items.where where_array
       end

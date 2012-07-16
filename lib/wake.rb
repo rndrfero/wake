@@ -329,6 +329,8 @@ module Wake
         where_array = [(" id = ? OR ")*(the_ids.size-1)+' id = ?'] + the_ids
         @items = @items.where where_array
       end
+
+#      raise "L: #{@items.to_sql}"
     
       # expecting model to have:
       # def wake_includes, wake_search_fields

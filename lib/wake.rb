@@ -242,7 +242,8 @@ module Wake
         if k.ends_with? "_id"
           name = k.chop.chop.chop
 #          instance_variable_set "@#{name}".to_s, Class.const_get(name.camelcase).find_by_id(v)
-          instance_variable_set "@#{name}".to_s, _module.const_get(name.camelcase).find_by_id(v)
+          instance_variable_set "@#{name}".to_s, name.camelize.constantize.find_by_id(v)
+#          raise "#{k} / #{v}: #{@roster}"
         end
       end  
     end
@@ -254,6 +255,7 @@ module Wake
 #      raise "pizdo: #{Elastic.const_get "Site"}"
 #      raise "pizdo: #{Elastic.const_get "Site"}"
       @items ||= _model
+      @items = @items.joins _model.wake_joins if _model.respond_to? :wake_joins
       @items = @items.where wake_constraints if wake_constraints
       @items = @items.includes _model.wake_includes if _model.respond_to? :wake_includes
       
@@ -319,9 +321,8 @@ module Wake
 
       if @wake_params[:search]
         where_array = [(_model.wake_search_fields.join(" LIKE ? OR ")+' LIKE ?')] + ["%#{@wake_params[:search]}%"]*_model.wake_search_fields.size
-        @items = @items.where where_array
-      
-        @item ||= @items.first if @items.size == 1
+        @items = @items.where where_array      
+#        @item ||= @items.first if @items.size == 1
       end
     
       if @wake_params[:filter_ids]
@@ -329,6 +330,8 @@ module Wake
         where_array = [(" id = ? OR ")*(the_ids.size-1)+' id = ?'] + the_ids
         @items = @items.where where_array
       end
+      
+      Rails.logger.debug "Wake: #{@items.to_sql}"
 
 #      raise "L: #{@items.to_sql}"
     

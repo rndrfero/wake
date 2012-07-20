@@ -120,7 +120,10 @@ module WakeHelper
   		filter_params << "wake[filter_range][#{k}]=#{v}&"
 	  end if @wake_params[:filter_range]
 
-		filter_params << "wake[search]=#{@wake_params[:search]}&" if @wake_params[:search]
+    for r in [:search, :order]
+  		filter_params << "wake[#{r}]=#{@wake_params[r]}&" if @wake_params[r]
+  	end
+#  		filter_params << "wake[order]=#{@wake_params[:order]}&" if @wake_params[:order]
 
 	  onchange = "document.location='#{url}#{URI.escape filter_params}wake[filter][#{key}]='+this.options[this.selectedIndex].value"
 		selected = @wake_params[:filter] ? @wake_params[:filter][key] : nil
@@ -145,19 +148,22 @@ module WakeHelper
   		filter_params << "wake[filter_range][#{k}]=#{v}&"
 	  end if @wake_params[:filter_range]
 
-		filter_params << "wake[search]=#{@wake_params[:search]}&" if @wake_params[:search]
+    #		filter_params << "wake[search]=#{@wake_params[:search]}&" if @wake_params[:search]
+    for r in [:search, :order]
+  		filter_params << "wake[#{r}]=#{@wake_params[r]}&" if @wake_params[r]
+  	end
 
 	  onchange = "document.location='#{url}#{URI.escape filter_params}wake[filter][#{key}]='+this.options[this.selectedIndex].value"
 		selected = @wake_params[:filter] ? @wake_params[:filter][key] : nil
 	  select 'not', 'important', choices, {:selected=>selected}, :onchange=>onchange
 	end
 	
-	def wake_back_button
-	  link_to 'wake.button.back'.tt, {:action=>'index', :wake=>@wake_params}, :class=>'button'
+	def wake_back_button(params={})
+	  link_to 'wake.button.back'.tt, {:action=>'index', :wake=>@wake_params}, {:class=>'button'}.merge(params)
   end
   
-  def wake_new_button
-    link_to 'wake.button.new'.tt, {:action=>'new', :wake=>@wake_params}, :class=>'button'
+  def wake_new_button(params={})
+    link_to 'wake.button.new'.tt, {:action=>'new', :wake=>@wake_params}, {:class=>'button'}.merge(params)
   end
   
   def wake_form_select(f,column,array)

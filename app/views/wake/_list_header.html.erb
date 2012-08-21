@@ -4,6 +4,12 @@
 %>
 
 <%#= form_tag(:controller=>params[:controller], :action=>'index') %>
+
+<% if @items.total_count == 0 %>
+  empty
+<% else %>
+	<%= @items.offset_value + 1 %>..<%= @items.offset_value + @items.length %>  of <%= @items.total_count %>
+<% end %>
 	
 <form action="<%= url_for %>" method="get" class="fright">
 	

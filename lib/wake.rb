@@ -30,6 +30,18 @@
 
 require "wake/engine"
 require 'kaminari'
+# require 'will_paginate'
+# require 'will_paginate/array' 
+
+module Kaminari
+  module Helpers
+    class Tag
+      def page_url_for(page)
+        @template.url_for @params.merge(@param_name => page)
+      end
+    end
+  end  
+end
 
 Kaminari.configure do |config|
   config.param_name = 'wake[page]'
@@ -93,6 +105,7 @@ module Wake
       wake_list
     
       flash.now[:notice] = "wake.#{_ident}.list"
+#      raise @items.to_yaml
       render :action => _ident+'_list'
     end
     
@@ -218,6 +231,7 @@ module Wake
       logger.debug "Wake PREPARE"
       params[:wake] ||= {}
       params[:wake][:filter] ||= {}
+#      params[:wake][:page] = params[:page] #if params[:page]
       @wake_params = params[:wake]      
       @item ||= _model.find params[:id] if params[:id]
       
@@ -278,13 +292,27 @@ module Wake
       if @wake_params[:filter_range] and !@wake_params[:filter_range][:key].blank?
         begin
           @wake_params[:filter_range][:from].strip!
-          from = @wake_params[:filter_range][:from].blank? ? nil : DateTime.parse(@wake_params[:filter_range][:from])
+#          from = @wake_params[:filter_range][:from].blank? ? nil : DateTime.parse(@wake_params[:filter_range][:from])
+          from = @wake_params[:filter_range][:from].blank? ? nil : begin
+            if @wake_params[:filter_range][:key] =~ /.*(_at|_on)$/
+              DateTime.parse @wake_params[:filter_range][:from]
+            else
+              @wake_params[:filter_range][:from].gsub /[^0-9\.]/, ''
+            end
+          end
         rescue ArgumentError
           from, @wake_params[:filter_range][:from_error] = nil, true
         end
         begin
           @wake_params[:filter_range][:until].strip!
-          untl = @wake_params[:filter_range][:until].blank? ? nil : DateTime.parse(@wake_params[:filter_range][:until])
+#          untl = @wake_params[:filter_range][:until].blank? ? nil : DateTime.parse(@wake_params[:filter_range][:until])
+          untl = @wake_params[:filter_range][:until].blank? ? nil : begin
+            if @wake_params[:filter_range][:key] =~ /.*(_at|_on)$/
+              DateTime.parse @wake_params[:filter_range][:until]
+            else
+              @wake_params[:filter_range][:until].gsub /[^0-9\.]/, ''
+            end
+          end
         rescue ArgumentError
           untl, @wake_params[:filter_range][:until_error] = nil, true
         end
@@ -309,7 +337,11 @@ module Wake
         elsif from
           @items = @items.where("? <= #{key}", from)
         elsif untl
-          @items = @items.where("#{key} <= ?", untl+1)
+          if @wake_params[:filter_range][:key] =~ /.*(_at|_on)$/
+            @items = @items.where("#{key} <= ?", untl+1)
+          else
+            @items = @items.where("#{key} <= ?", untl)
+          end
         end
       end
     
@@ -317,7 +349,6 @@ module Wake
         @items = @items.order @wake_params[:order] #+((wake_params[:desc]=='true' or wake_params[:desc]==true)  ? ' DESC' : ' ASC')) 
       end
     
-      @items = @items.page(@wake_params[:page]).per(Defaults::PER_PAGE)    
 
       if @wake_params[:search]
         where_array = [(_model.wake_search_fields.join(" LIKE ? OR ")+' LIKE ?')] + ["%#{@wake_params[:search]}%"]*_model.wake_search_fields.size
@@ -330,6 +361,13 @@ module Wake
         where_array = [(" id = ? OR ")*(the_ids.size-1)+' id = ?'] + the_ids
         @items = @items.where where_array
       end
+
+      # kaminari
+      @items = @items.page(@wake_params[:page]).per(Defaults::PER_PAGE)
+#      @items = @items.all
+      # will_paginate
+#      @items = @items.paginate(:page => @wake_params[:page], :per_page => Defaults::PER_PAGE)
+
       
       Rails.logger.debug "Wake: #{@items.to_sql}"
 

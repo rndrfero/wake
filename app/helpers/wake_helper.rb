@@ -1,7 +1,11 @@
 module WakeHelper
+  
+  # def paginate(*args)
+  #   will_paginate args
+  # end
     
   def ico(x, color=nil, title=nil)
-    title ||= 'wake.ico.x'.tt
+    title ||= "wake.ico.#{x}".tt
     raw "<span class='iconic #{x}' style='color: #{color};' title='#{title}'></span>"
   end
 
@@ -70,6 +74,7 @@ module WakeHelper
   # end
 
   def wake_onclick(item)
+#    raise item.to_yaml if item.nil?
     raw "onclick=\"document.location='#{url_for :action=>'edit', :id=>item, :wake=>@wake_params}'\""
   end
 

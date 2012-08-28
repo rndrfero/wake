@@ -190,7 +190,7 @@ module Wake
           end
         end
       else
-        logger.debug @item.errors.to_s
+        logger.debug @item.errors.to_yaml
         respond_to do |format|
           format.html do 
             flash[:error] = "wake.#{_ident}.update_error"
@@ -205,20 +205,36 @@ module Wake
     end
   
   
+  #   def destroy
+  #     if request.xhr?
+  #     else
+  #       ret = @item.destroy 
+  # #      raise ret.inspect
+  #       if ret.is_a? _model or ret==[]
+  #         flash[:hilite] = "wake.#{_ident}.destroy_ok"
+  #         redirect_to :action=>'index', :id=>nil, :wake=>params[:wake]
+  #       else
+  #         flash.now[:error] = "wake.#{_ident}.destroy_error"
+  #         respond_to do |format|
+  #           format.html { raise "render_list_or_form" }
+  #         end #render :action => _ident+'_form'
+  #       end
+  #     end
+  #   end
+  
     def destroy
-      if request.xhr?
+      begin
+        ret = @item.destroy
+        raise RuntimeError, 'Destroy failed.' unless ret.is_a? _model or ret==[]
+      rescue Exception=>e
+        flash.now[:error] = e.message # "wake.#{_ident}.destroy_error"    
+        Rails.logger.debug "\n----[ EXCEPTION: #{e.message} ]---------------------------------------\n"
+        Rails.logger.debug e.backtrace.join("\n")
+        wake_list
+        render :action => _ident+'_list'
       else
-        ret = @item.destroy 
-  #      raise ret.inspect
-        if ret.is_a? _model or ret==[]
-          flash[:hilite] = "wake.#{_ident}.destroy_ok"
-          redirect_to :action=>'index', :id=>nil, :wake=>params[:wake]
-        else
-          flash.now[:error] = "wake.#{_ident}.destroy_error"
-          respond_to do |format|
-            format.html { raise "render_list_or_form" }
-          end #render :action => _ident+'_form'
-        end
+        flash[:hilite] = "wake.#{_ident}.destroy_ok"
+        redirect_to :action=>'index', :id=>nil, :wake=>params[:wake]
       end
     end
   

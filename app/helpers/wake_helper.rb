@@ -84,10 +84,16 @@ module WakeHelper
   end
 
   def wake_hl(string)
-    @_search ||= @wake_params[:search]
+    @_search ||= @wake_params[:search]    
+#    raise "'#{sanitize @_search}' vs '#{sanitize string}'"   
+
+    # return string if @_search.blank? or string.blank?
+    # @_regexp ||= Regexp.new("(#{sanitize(@_search)})", Regexp::EXTENDED|Regexp::IGNORECASE)
+    # raw sanitize(string.to_s).gsub @_regexp, "<span class=\"wake_hl\">\\1</span>"
+    
     return string if @_search.blank? or string.blank?
-    @_regexp ||= Regexp.new("(#{sanitize(@_search)})", Regexp::EXTENDED|Regexp::IGNORECASE)
-    raw string.to_s.gsub @_regexp, "<span class=\"wake_hl\">\\1</span>"
+    @_regexp ||= /(#{sanitize(@_search)})/ # , Regexp::EXTENDED|Regexp::IGNORECASE)
+    raw sanitize(string.to_s).gsub @_regexp, "<span class=\"wake_hl\">\\1</span>"
   end
 
   def wake_button_destroy(item)

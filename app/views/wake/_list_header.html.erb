@@ -15,9 +15,13 @@
 	
 	
 	<% if not_found %><div class="field_with_errors"><% end %>
-	
-	<span class="em80">Search:</span> 
-	<input class="search right" type="text" name="wake[search]" value="<%= @wake_params[:search] %>" size="30" />
+
+	<% if not @wake_params[:search].blank? %>
+		<span class="em80 b" style="color: #77c02e;">Search:</span> 
+	<% else %>
+		<span class="em80">Search:</span> 
+	<% end %>
+	<input class="search" type="text" name="wake[search]" value="<%= @wake_params[:search] %>" size="30" />
   <!-- <input type="image" src="/wake/icons/search.png" class="" alt="GO" 
      style="margin: 0px; padding: 0px; background: none; position: relative; top: 3px; left: 4px; cursor: pointer;"> -->
 

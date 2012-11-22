@@ -142,10 +142,10 @@ module WakeHelper
   end
 
 
-	def wake_filter_exclusive(collection, key=nil)
+	def wake_filter_exclusive(collection, key=nil, name=:name)
 		key ||= collection.first.class.to_s.underscore + '_id'
 
-	  choices = [['', nil]] + collection.map{ |x| [x.name,x.id] }
+	  choices = [['', nil]] + collection.map{ |x| [x.send(name),x.id] }
 		url = url_for :action=>'index'
 
 		filter_params = "?"

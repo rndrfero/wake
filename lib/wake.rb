@@ -268,11 +268,17 @@ module Wake
       # @search = params[:search] if params[:search]
     
       # @something = Something.find_by_id params[:something_id]
+      
       for k,v in params
         if k.ends_with? "_id"
           name = k.chop.chop.chop
 #          instance_variable_set "@#{name}".to_s, Class.const_get(name.camelcase).find_by_id(v)
-          instance_variable_set "@#{name}".to_s, name.camelize.constantize.find_by_id(v)
+          if _module == self
+            instance_variable_set "@#{name}".to_s, name.camelize.constantize.find_by_id(v)
+          else
+            instance_variable_set "@#{name}".to_s, "#{_module}::#{name.camelize}".constantize.find_by_id(v)
+          end
+          
 #          raise "#{k} / #{v}: #{@roster}"
         end
       end  

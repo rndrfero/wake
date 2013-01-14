@@ -99,7 +99,7 @@ module WakeHelper
   def wake_button_destroy(item)
     return '' if not item.wake_destroyable? if item.respond_to? :wake_destroyable?
     link_to ico('x'), {:action=>'destroy',:id=>item, :wake=>params[:wake]}, 
-      :method=>:delete, :data=>{:confirm=>'wake.general.confirm_destroy'.tt}
+      :method=>:delete, :data=>{:confirm=>'wake.general.confirm_destroy'.tt(:item=>item.name)}
   end
 
   # def wake_star_button(item)

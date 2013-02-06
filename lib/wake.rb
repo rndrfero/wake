@@ -48,6 +48,16 @@ Kaminari.configure do |config|
 end
 
 
+module Kaminari
+  module ActiveRecordRelationMethods
+    def total_count
+      raise 'hovno'
+      @items_total_count || super
+    end
+  end
+end
+
+
 module Wake
     
   #autoload :WakeHelper, '../app/helpers/wake_helper'
@@ -385,6 +395,8 @@ module Wake
       end
 
       # kaminari
+      @items_total_count = @items.count
+      @items.instance_variable_set :@total_count, @items_total_count
       @items = @items.page(@wake_params[:page]).per(Defaults::PER_PAGE)
 #      @items = @items.all
       # will_paginate

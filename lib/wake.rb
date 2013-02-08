@@ -394,9 +394,10 @@ module Wake
         @items = @items.where where_array
       end
 
-      # kaminari
-      @items_total_count = @items.count
-      @items.instance_variable_set :@total_count, @items_total_count
+      # kaminari      
+      @items_total_count_hack = @items.count if @items_total_count_hack
+      @items.instance_variable_set :@total_count, @items_total_count_hack
+      
       @items = @items.page(@wake_params[:page]).per(Defaults::PER_PAGE)
 #      @items = @items.all
       # will_paginate

@@ -57,6 +57,11 @@ module Kaminari
   end
 end
 
+class String
+  def tt(options={})
+    I18n.translate(self, {:default=>self}.merge(options))
+  end
+end
 
 module Wake
     
@@ -114,7 +119,7 @@ module Wake
     def index
       wake_list
     
-      flash.now[:notice] = "wake.#{_ident}.list"
+      @wake_info = "wake.#{_ident}.list".tt
 #      raise @items.to_yaml
       render :action => _ident+'_list'
     end
@@ -125,7 +130,7 @@ module Wake
       @item.attributes = params[_model_sym] if params[_model_sym]
       @item.attributes = wake_constraints if wake_constraints
    
-      flash.now[:notice] = @flash_notice = "wake.#{_ident}.new"
+      @wake_info = "wake.#{_ident}.new".tt
       respond_to do |format|      
         format.html { render :action => _ident+'_form' } #render_list_or_form 
         format.js { render :template => '/wake/form' }
@@ -140,7 +145,7 @@ module Wake
       @item.attributes = wake_constraints if wake_constraints
           
       if @item.save
-        flash[:hilite] = "wake.#{_ident}.create_ok"
+        flash[:notice] = "wake.#{_ident}.create_ok".tt
         respond_to do |format|
           format.html { redirect_to :action=>'edit', :id=>@item.id, :wake=>params[:wake] }
   #        format.js { render :template=>'wake/create' }
@@ -148,7 +153,7 @@ module Wake
           # { redirect_to :action=>'index' }
         end
       else # fail
-        flash.now[:error] = "wake.#{_ident}.create_error"
+        flash.now[:error] = "wake.#{_ident}.create_error".tt
         @item.errors.each{ |x| logger.debug x.inspect }
         respond_to do |format|
           format.html { render :action => _ident+'_form' }
@@ -165,7 +170,7 @@ module Wake
   
   
     def edit
-      flash.now[:notice] = "wake.#{_ident}.edit"
+      @wake_info = "wake.#{_ident}.edit".tt
       respond_to do |format|
   #      format.html { render_list_or_form } #render :action => _ident+'_form'
         format.html { render :action => _ident+'_form' } #
@@ -191,11 +196,11 @@ module Wake
       if @item.save
         respond_to do |format|
           format.html do
-            flash[:hilite] = "wake.#{_ident}.update_ok"
+            flash[:notice] = "wake.#{_ident}.update_ok".tt
             redirect_to :action=>'edit', :wake=>params[:wake]
           end
           format.js do
-            flash.now[:hilite] = "wake.#{_ident}.update_ok"
+            flash.now[:notice] = "wake.#{_ident}.update_ok".tt
             render :template => '/wake/update'
           end
         end
@@ -203,11 +208,11 @@ module Wake
         logger.debug @item.errors.to_yaml
         respond_to do |format|
           format.html do 
-            flash[:error] = "wake.#{_ident}.update_error"
+            flash[:error] = "wake.#{_ident}.update_error".tt
             render :action => _ident+'_form'
           end
           format.js do
-            flash.now[:error] = "wake.#{_ident}.update_error"
+            flash.now[:error] = "wake.#{_ident}.update_error".tt
            render :template => '/wake/update'
           end
         end
@@ -243,12 +248,30 @@ module Wake
         wake_list
         render :action => _ident+'_list'
       else
-        flash[:hilite] = "wake.#{_ident}.destroy_ok"
+        flash[:notice] = "wake.#{_ident}.destroy_ok".tt
         redirect_to :action=>'index', :id=>nil, :wake=>params[:wake]
       end
     end
-  
-  
+    
+    # --- content for ---
+    def view_context
+      super.tap do |view|
+        (@_content_for || {}).each do |name,content|
+          view.content_for name, content
+        end
+      end
+    end
+    def content_for(name, content) # no blocks allowed yet
+      @_content_for ||= {}
+      if @_content_for[name].respond_to?(:<<)
+        @_content_for[name] << content
+      else
+        @_content_for[name] = content
+      end
+    end
+    def content_for?(name)
+      @_content_for[name].present?
+    end  
   
     # --- private ---
   

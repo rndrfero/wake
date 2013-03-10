@@ -6,7 +6,8 @@ module WakeHelper
     
   def ico(x, color=nil, title=nil)
     title ||= "wake.ico.#{x}".tt
-    raw "<span class='iconic #{x}' style='color: #{color};' title='#{title}'></span>"
+    color ||= "white"
+    raw "<i class=\"icon-#{x} icon-#{color}\" title='#{title}'></i> "
   end
 
 
@@ -24,9 +25,12 @@ module WakeHelper
   
   def menu_link_to(label, path)
     req_path = request.path.gsub(/\/\//, "/")
-    options = {}
-    options[:class]= "active" if req_path.starts_with? path
-    raw link_to label, path, options
+    liclass = req_path.starts_with?(path) ? "active" : ""
+    out = ""
+    out << "<li class=\"#{liclass}\">"
+    out << link_to(label, path)
+    out << "</li>"
+    return raw out
   end
 
   def menu_match(*args)
@@ -96,12 +100,6 @@ module WakeHelper
     raw sanitize(string.to_s).gsub @_regexp, "<span class=\"wake_hl\">\\1</span>"
   end
 
-  def wake_button_destroy(item)
-    return '' if not item.wake_destroyable? if item.respond_to? :wake_destroyable?
-    link_to ico('x'), {:action=>'destroy',:id=>item, :wake=>params[:wake]}, 
-      :method=>:delete, :data=>{:confirm=>'wake.general.confirm_destroy'.tt(:item=>item.name)}
-  end
-
   # def wake_star_button(item)
   #   link_to raw(wake_icon(item.is_star? ? :star_on : :star_off)), {:action=>'toggle_star', :id=>item}, :method=>:post
   # end
@@ -168,15 +166,7 @@ module WakeHelper
 		selected = @wake_params[:filter] ? @wake_params[:filter][key] : nil
 	  select 'not', 'important', choices, {:selected=>selected}, :onchange=>onchange
 	end
-	
-	def wake_back_button(params={})
-	  link_to 'wake.button.back'.tt, {:action=>'index', :wake=>@wake_params}, {:class=>'button'}.merge(params)
-  end
-  
-  def wake_new_button(params={})
-    link_to 'wake.button.new'.tt, {:action=>'new', :wake=>@wake_params}, {:class=>'button'}.merge(params)
-  end
-  
+
   def wake_form_select(f,column,array)
     if f.object.new_record? and @wake_params[:filter][column]
       f.select column, [[nil,nil]]+array.map{ |x| [x.name, x.id] }, :selected=>@wake_params[:filter][column]
@@ -198,6 +188,34 @@ module WakeHelper
     else
       raise 'unexpected'
     end
+  end
+
+  def wake_destroy_button(item)
+    return '' if not item.wake_destroyable? if item.respond_to? :wake_destroyable?
+    link_to ico("remove","white") + "wake.button.destroy".tt, {:action=>'destroy',:id=>item, :wake=>params[:wake]}, :class=>"btn btn-danger",
+      :method=>:delete, :data=>{:confirm=>'wake.general.confirm_destroy'.tt(:item=>item)}
+  end
+
+
+  def wake_new_button(params={})
+    link_to ico("plus","white") + 'wake.button.new'.tt, {:action=>'new', :wake=>@wake_params}, {:class=>'btn btn-primary'}.merge(params)
+  end
+
+  def wake_edit_button(link)
+    link_to ico("edit","white") + 'wake.button.edit'.tt,link,{:class=>'btn btn-warning'}
+  end
+
+  def wake_back_button(params={})
+      link_to 'wake.button.back'.tt, {:action=>'index', :wake=>@wake_params}, {:class=>'btn'}.merge(params)
+  end 
+
+  def wake_save_button(form)
+    form.submit "wake.button.save".tt, :class => "btn btn-primary"
+  end  
+
+  def wake_info
+    #raw('<p class="text-info">') + @wake_info + raw('</p>')
+    raw('<h4>') + @wake_info + raw('</h4>')
   end
   
   

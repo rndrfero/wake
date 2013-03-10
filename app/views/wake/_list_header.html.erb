@@ -3,31 +3,17 @@
    not_found = @items.blank? if params[:search]
 %>
 
-<%#= form_tag(:controller=>params[:controller], :action=>'index') %>
-
-<% if @items.total_count == 0 %>
-  empty
-<% else %>
-	<%= @items.offset_value + 1 %>..<%= @items.offset_value + @items.length %>  of <%= @items.total_count %>
-<% end %>
-	
-<form action="<%= url_for %>" method="get" class="fright">
-	
-	
-	<% if not_found %><div class="field_with_errors"><% end %>
-
-	<% if not @wake_params[:search].blank? %>
-		<span class="em80 b" style="color: #77c02e;">Search:</span> 
+<div class="well">
+	<% if @items.total_count == 0 %>
+	  empty
 	<% else %>
-		<span class="em80">Search:</span> 
+		<%= @items.offset_value + 1 %>..<%= @items.offset_value + @items.length %>  <%= "wake.of".tt %> <%= @items.total_count %>
 	<% end %>
-	<input class="search" type="text" name="wake[search]" value="<%= @wake_params[:search] %>" size="30" />
-  <!-- <input type="image" src="/wake/icons/search.png" class="" alt="GO" 
-     style="margin: 0px; padding: 0px; background: none; position: relative; top: 3px; left: 4px; cursor: pointer;"> -->
-
-&nbsp;
-
-	<% if not_found %></div><% end %>
-
-</form>
-
+		
+	<form action="<%= url_for %>" method="get" class="form-search pull-right">
+		<div class="control-group <%= not_found ? "error" : (@wake_params[:search].blank? ? "" : "success") %>">
+			<input name="wake[search]" value="<%= @wake_params[:search] %>" type="text" class="input-medium search-query">
+		  	<button type="submit" class="btn"><%= "wake.search".tt %></button>
+	  	</div>
+	</form>
+</div>

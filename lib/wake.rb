@@ -48,14 +48,14 @@ Kaminari.configure do |config|
 end
 
 
-module Kaminari
-  module ActiveRecordRelationMethods
-    def total_count
-      raise 'hovno'
-      @items_total_count || super
-    end
-  end
-end
+# module Kaminari
+#   module ActiveRecordRelationMethods
+#     def total_count
+#       raise 'hovno'
+#       @items_total_count || super
+#     end
+#   end
+# end
 
 
 module Wake
